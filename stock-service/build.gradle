@@ -1,11 +1,25 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath('se.transmode.gradle:gradle-docker:1.2')
+  }
+}
+
 plugins {
   id 'org.springframework.boot' version '2.4.4'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
   id 'java'
 }
 
-group = 'vip.linhs.stock'
-version = '0.0.1'
+group = 'stock-service'
+version = '0.0.2'
+
+jar {
+  baseName = 'stock-service'
+  version =  '0.0.2'
+}
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -34,6 +48,20 @@ dependencies {
   runtimeOnly 'mysql:mysql-connector-java'
   developmentOnly 'org.springframework.boot:spring-boot-devtools'
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+
+
+apply plugin: 'docker'
+task buildDocker(type: Docker, dependsOn: build) {
+  applicationName = jar.baseName
+  dockerfile = file('Dockerfile')
+  doFirst {
+    copy {
+      from jar
+      into "${stageDir}/target"
+    }
+  }
 }
 
 test {
